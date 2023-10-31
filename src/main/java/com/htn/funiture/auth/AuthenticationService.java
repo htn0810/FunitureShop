@@ -1,5 +1,6 @@
 package com.htn.funiture.auth;
 
+import com.htn.funiture.dtos.UserDTO;
 import com.htn.funiture.entity.User;
 import com.htn.funiture.enums.Role;
 import com.htn.funiture.repository.UserRepository;
@@ -19,7 +20,7 @@ public class AuthenticationService {
     private final AuthenticationManager authenticationManager;
 
     public AuthenticationResponse signup(RegisterRequest request) {
-        var user = User.builder()
+        User user = User.builder()
                 .firstName(request.getFirstName())
                 .lastName(request.getLastName())
                 .email(request.getEmail())
@@ -27,7 +28,8 @@ public class AuthenticationService {
                 .role(Role.USER)
                 .build();
         userRepository.save(user);
-        var jwtToken = jwtService.generateToken(user);
+        UserDTO userWithoutPw = new UserDTO(user);
+        var jwtToken = jwtService.generateToken(userWithoutPw);
         return AuthenticationResponse.builder()
                 .token(jwtToken)
                 .build();
@@ -36,10 +38,16 @@ public class AuthenticationService {
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
         );
-        var user = userRepository.findByEmail(request.getEmail()).orElseThrow();
-        var jwtToken = jwtService.generateToken(user);
+        User user = userRepository.findByEmail(request.getEmail()).orElseThrow();
+        UserDTO userWithoutPw = new UserDTO(user);
+//        System.out.println(user.toString());
+        var jwtToken = jwtService.generateToken(userWithoutPw);
         return AuthenticationResponse.builder()
                 .token(jwtToken)
                 .build();
+    }
+
+    public boolean existEmail(String email) {
+        return userRepository.findByEmail(email).isPresent();
     }
 }

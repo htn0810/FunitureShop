@@ -1,5 +1,6 @@
 package com.htn.funiture.repository;
 
+import com.htn.funiture.dtos.UserDTO;
 import com.htn.funiture.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
